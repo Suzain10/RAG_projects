@@ -29,7 +29,6 @@ llm = ChatOpenAI(model="gpt-4o-mini")
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.schema import Document
-# import pdfplumber
 from langchain import hub
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -46,38 +45,39 @@ pages = loader.load_and_split()
 
 # Convert pages to Document objects
 documents = [Document(page_content=str(page)) for page in pages]
+documents
 
-# Split the text into chunks
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
-splits = text_splitter.split_documents(documents)
-
-
-# Create vector store and retriever
-vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
-retriever = vectorstore.as_retriever()
+# # Split the text into chunks
+# text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
+# splits = text_splitter.split_documents(documents)
 
 
-# Create the system prompt
-system_prompt = (
-    "You are an assistant for question-answering tasks. "
-    "Use the following pieces of retrieved context to answer "
-    "the question. If you don't know the answer, say that you "
-    "don't know. Use six sentences maximum and keep the "
-    "answer concise."
-    "\n\n"
-    "{context}"
-)
+# # Create vector store and retriever
+# vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
+# retriever = vectorstore.as_retriever()
 
-prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", system_prompt),
-        ("human", "{input}"),
-    ]
-)
 
-# Create question-answering chain
-question_answer_chain = create_stuff_documents_chain(llm, prompt)
-rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+# # Create the system prompt
+# system_prompt = (
+#     "You are an assistant for question-answering tasks. "
+#     "Use the following pieces of retrieved context to answer "
+#     "the question. If you don't know the answer, say that you "
+#     "don't know. Use six sentences maximum and keep the "
+#     "answer concise."
+#     "\n\n"
+#     "{context}"
+# )
+
+# prompt = ChatPromptTemplate.from_messages(
+#     [
+#         ("system", system_prompt),
+#         ("human", "{input}"),
+#     ]
+# )
+
+# # Create question-answering chain
+# question_answer_chain = create_stuff_documents_chain(llm, prompt)
+# rag_chain = create_retrieval_chain(retriever, question_answer_chain)
 
 response = rag_chain.invoke({"input": "Which disease was discovered by Dr. Amara Delcroix in 2042?"})
 response["answer"]
